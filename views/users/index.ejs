@@ -19,6 +19,11 @@
       <td>
         <%= user.zipCode %>
       </td>
+      <td>
+<a href="<%= `/users/${user._id}` %>">
+<%= user.fullName %>
+</a>
+</td>
     </tr>
     <% }); %>
   </tbody>

@@ -9,7 +9,8 @@ const express = require("express"),
   subscribersController = require("./controllers/subscribersController"),
   usersController = require("./controllers/usersController"),
   coursesController = require("./controllers/coursesController"),
-  Subscriber = require("./models/subscriber");
+  Subscriber = require("./models/subscriber"),
+  router=express.Router();
 mongoose.Promise = global.Promise;
 
 mongoose.connect(
@@ -27,28 +28,34 @@ db.once("open", () => {
 app.set("port", process.env.PORT || 3000);
 app.set("view engine", "ejs");
 
-app.use(express.static("public"));
-app.use(layouts);
-app.use(
+router.use(express.static("public"));
+router.use(layouts);
+router.use(
   express.urlencoded({
     extended: false
   })
 );
-app.use(express.json());
-app.use(homeController.logRequestPaths);
+router.use(express.json());
+router.use(homeController.logRequestPaths);
 
-app.get("/", homeController.index);
-app.get("/contact", homeController.getSubscriptionPage);
+router.get("/", homeController.index);
+router.get("/contact", homeController.getSubscriptionPage);
 
-app.get("/users", usersController.index, usersController.indexView);
-app.get("/subscribers", subscribersController.index, subscribersController.indexView);
-app.get("/courses", coursesController.index, coursesController.indexView);
+router.get("/users", usersController.index, usersController.indexView);
+router.get("/subscribers", subscribersController.index, subscribersController.indexView);
+router.get("/courses", coursesController.index, coursesController.indexView);
+router.get('/users/new',usersController.new);
+router.post('/users/create',usersController.create,usersController.redirectView)
 
-app.post("/subscribe", subscribersController.saveSubscriber);
 
-app.use(errorController.logErrors);
-app.use(errorController.respondNoResourceFound);
-app.use(errorController.respondInternalError);
+router.post("/subscribe", subscribersController.saveSubscriber);
+router.get('/users/:id',usersController.show,usersController.showView)
+
+router.use(errorController.logErrors);
+router.use(errorController.respondNoResourceFound);
+router.use(errorController.respondInternalError);
+app.use('/',router)
+
 
 app.listen(app.get("port"), () => {
   console.log(`Server running at http://localhost:${app.get("port")}`);
